@@ -1,0 +1,19 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Rappel Conso",
+        "description": "Connectez-vous à l'API RappelConso de data.gouv.fr pour surveiller les rappels de produits en France.\n\nAucune configuration nécessaire - cliquez simplement sur Soumettre pour continuer.",
+        "data": {}
+      }
+    },
+    "error": {
+      "cannot_connect": "Impossible de se connecter à l'API RappelConso. Veuillez vérifier votre connexion Internet et réessayer.",
+      "invalid_response": "Réponse invalide de l'API. Veuillez réessayer plus tard.",
+      "unknown": "Erreur inattendue lors de la connexion à l'API."
+    },
+    "abort": {
+      "already_configured": "Cette intégration est déjà configurée."
+    }
+  }
+}

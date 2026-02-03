@@ -1,0 +1,5 @@
+# Runtime dependencies for the Rappel Conso integration
+# These should match the requirements in manifest.json
+
+httpx>=0.27.0
+pydantic>=2.0.0

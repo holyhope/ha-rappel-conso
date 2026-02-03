@@ -1,0 +1,19 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Rappel Conso",
+        "description": "Connect to the data.gouv.fr RappelConso API to monitor product recalls in France.\n\nNo configuration needed - just click Submit to continue.",
+        "data": {}
+      }
+    },
+    "error": {
+      "cannot_connect": "Failed to connect to the RappelConso API. Please check your internet connection and try again.",
+      "invalid_response": "Invalid response from API. Please try again later.",
+      "unknown": "Unexpected error occurred while connecting to the API."
+    },
+    "abort": {
+      "already_configured": "This integration is already configured."
+    }
+  }
+}

@@ -1,0 +1,99 @@
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+asyncio_default_fixture_loop_scope = "function"
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+
+[tool.ruff]
+target-version = "py313"
+line-length = 88
+
+[tool.ruff.lint]
+select = [
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "F",   # pyflakes
+    "I",   # isort
+    "C",   # flake8-comprehensions
+    "B",   # flake8-bugbear
+    "UP",  # pyupgrade
+    "N",   # pep8-naming
+    "YTT", # flake8-2020
+    "ANN", # flake8-annotations
+    "S",   # flake8-bandit
+    "BLE", # flake8-blind-except
+    "A",   # flake8-builtins
+    "C4",  # flake8-comprehensions
+    "T10", # flake8-debugger
+    "ICN", # flake8-import-conventions
+    "PIE", # flake8-pie
+    "T20", # flake8-print
+    "PT",  # flake8-pytest-style
+    "RET", # flake8-return
+    "SIM", # flake8-simplify
+    "TID", # flake8-tidy-imports
+    "ARG", # flake8-unused-arguments
+    "ERA", # eradicate
+    "PL",  # Pylint
+    "TRY", # tryceratops
+    "RUF", # Ruff-specific rules
+]
+ignore = [
+    "ANN101",  # Missing type annotation for self (deprecated)
+    "ANN102",  # Missing type annotation for cls (deprecated)
+    "S101",    # Use of assert (needed in tests)
+    "PLR0913", # Too many arguments
+    "TRY003",  # Avoid specifying long messages outside exception class
+    "TRY301",  # Abstract raise to inner function (overly strict)
+    "ISC001",  # Conflicts with ruff formatter
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**/*.py" = [
+    "S101",    # Allow assert in tests
+    "ANN",     # Don't require annotations in tests
+    "PLR2004", # Allow magic values in tests
+    "ARG001",  # Allow unused arguments (fixtures)
+]
+
+[tool.mypy]
+python_version = "3.13"
+strict = true
+warn_return_any = false
+warn_unused_configs = true
+warn_unused_ignores = true
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = "tests.*"
+disallow_untyped_defs = false
+disallow_untyped_calls = false
+
+[[tool.mypy.overrides]]
+module = "custom_components.rappel_conso.*"
+# Disable strict checking for Home Assistant integration files
+disable_error_code = ["misc", "import-not-found", "arg-type", "call-arg"]
+
+[tool.pylint.main]
+py-version = "3.13"
+ignore = ["tests"]
+extension-pkg-allow-list = ["pydantic"]
+
+[tool.pylint.messages_control]
+disable = [
+    "import-error",  # Home Assistant imports not available
+    "too-few-public-methods",
+    "too-many-instance-attributes",
+    "too-many-arguments",
+    "fixme",
+    "broad-exception-caught",
+    "import-outside-toplevel",
+]
+
+[tool.pylint.format]
+max-line-length = 88
+
+[tool.pylint.design]
+max-attributes = 15
