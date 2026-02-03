@@ -26,12 +26,32 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Automated testing with pytest
   - Code coverage reporting
 
+### BREAKING CHANGES
+
+- **English field names everywhere**: ALL fields now use English names (product_name, category, brand, sheet_number, version_number, recall_guid, etc.) instead of French API names
+- **Events changed**: Event field names updated to fully English:
+  - `numero_fiche` → `sheet_number`
+  - Event now includes `version_number` and `recall_guid` fields
+- **English UI by default**: Integration UI text is now in English by default with full French translations available
+- **Migration required**: Users must update:
+  - Template sensors referencing sensor attributes
+  - Automations listening to events
+  - Key field name changes:
+    - `libelle` → `product_name`
+    - `categorie_produit` → `category`
+    - `marque_produit` → `brand`
+    - `numero_fiche` → `sheet_number`
+    - `numero_version` → `version_number`
+    - `rappel_guid` → `recall_guid`
+  - See full field mapping in MIGRATION.md
+
 ### Features
 - **Zero-configuration**: No user input required, works out of the box
 - **Real-time monitoring**: Tracks 50 most recent recalls with all fields
+- **Event-based automations**: Fires `rappel_conso_new_recall` events for granular control with English field names
 - **Change detection**: Automatically tracks new recalls since last check
 - **Efficient API usage**: Pagination and smart caching (max 1000 recall IDs)
-- **Flexible filtering**: Users create template sensors for custom filtering
+- **Flexible filtering**: Users create template sensors for custom filtering or use event conditions
 - **Comprehensive data**: All recall fields exposed as sensor attributes including:
   - Product information (name, brand, category)
   - Recall details (reason, risks, date)
@@ -45,6 +65,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - API endpoint: data.economie.gouv.fr RappelConso V2
 - Dependencies: httpx >= 0.27.0, pydantic >= 2.0.0
 - Python: 3.13+ supported
-- Test coverage: 7 passing tests
+- Test coverage: 9 passing tests (including event firing and field mapping validation)
 
 [1.0.0]: https://github.com/holyhope/ha-rappel-conso/releases/tag/v1.0.0

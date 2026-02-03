@@ -3,17 +3,17 @@
     "step": {
       "user": {
         "title": "Rappel Conso",
-        "description": "Connectez-vous à l'API RappelConso de data.gouv.fr pour surveiller les rappels de produits en France.\n\nAucune configuration nécessaire - cliquez simplement sur Soumettre pour continuer.",
+        "description": "Connect to the data.gouv.fr RappelConso API to monitor product recalls in France.\n\nNo configuration needed - just click Submit to continue.",
         "data": {}
       }
     },
     "error": {
-      "cannot_connect": "Impossible de se connecter à l'API RappelConso. Veuillez vérifier votre connexion Internet et réessayer.",
-      "invalid_response": "Réponse invalide de l'API. Veuillez réessayer plus tard.",
-      "unknown": "Erreur inattendue lors de la connexion à l'API."
+      "cannot_connect": "Failed to connect to the RappelConso API. Please check your internet connection and try again.",
+      "invalid_response": "Invalid response from API. Please try again later.",
+      "unknown": "Unexpected error occurred while connecting to the API."
     },
     "abort": {
-      "already_configured": "Cette intégration est déjà configurée."
+      "already_configured": "This integration is already configured."
     }
   }
 }

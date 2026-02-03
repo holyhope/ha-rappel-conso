@@ -51,6 +51,31 @@ class RappelConsoCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             )
         return self._client
 
+    def _fire_new_recall_events(
+        self, all_recalls: list[dict[str, Any]], new_recall_ids: set[int]
+    ) -> None:
+        """Fire events for each new recall."""
+        for recall in all_recalls:
+            if recall.get("id") in new_recall_ids:
+                self.hass.bus.async_fire(
+                    "rappel_conso_new_recall",
+                    {
+                        "recall_id": recall.get("id"),
+                        "sheet_number": recall.get("sheet_number"),
+                        "version_number": recall.get("version_number"),
+                        "recall_guid": recall.get("recall_guid"),
+                        "product_name": recall.get("product_name"),
+                        "category": recall.get("category"),
+                        "subcategory": recall.get("subcategory"),
+                        "brand": recall.get("brand"),
+                        "publication_date": recall.get("publication_date"),
+                        "recall_reason": recall.get("recall_reason"),
+                        "risks": recall.get("risks"),
+                        "recall_link": recall.get("recall_link"),
+                    },
+                )
+        _LOGGER.debug("Fired %d new recall events", len(new_recall_ids))
+
     async def _async_update_data(self) -> dict[str, Any]:
         """Fetch data from API."""
         try:
@@ -89,7 +114,9 @@ class RappelConsoCoordinator(DataUpdateCoordinator[dict[str, Any]]):
                 new_recall_ids.update(new_in_page)
 
                 # Add recalls to our collection
-                all_recalls.extend(recall.to_dict() for recall in api_response.results)
+                all_recalls.extend(
+                    recall.to_english_dict() for recall in api_response.results
+                )
 
                 # Stop if we've collected enough or if most recalls are known
                 if (
@@ -124,6 +151,10 @@ class RappelConsoCoordinator(DataUpdateCoordinator[dict[str, Any]]):
                 len(new_recall_ids),
                 total_count,
             )
+
+            # Fire events for each new recall
+            if new_recall_ids:
+                self._fire_new_recall_events(all_recalls, new_recall_ids)
 
             return {
                 "total_count": total_count,

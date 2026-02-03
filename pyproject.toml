@@ -48,6 +48,7 @@ ignore = [
     "TRY003",  # Avoid specifying long messages outside exception class
     "TRY301",  # Abstract raise to inner function (overly strict)
     "ISC001",  # Conflicts with ruff formatter
+    "C901",    # Function is too complex (coordinator methods are naturally complex)
 ]
 
 [tool.ruff.lint.per-file-ignores]

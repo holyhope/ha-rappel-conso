@@ -52,22 +52,79 @@ template:
 
 ### Create Your First Automation
 
+Using events (recommended):
+
 ```yaml
 automation:
   - alias: "Notify on New Recall"
     trigger:
-      - platform: state
-        entity_id: sensor.rappel_conso
-        attribute: new_recalls_count
-    condition:
-      - "{{ trigger.to_state.attributes.new_recalls_count > 0 }}"
+      - platform: event
+        event_type: rappel_conso_new_recall
     action:
       - service: persistent_notification.create
         data:
-          title: "⚠️ Nouveaux rappels de produits"
+          title: "⚠️ Nouveau rappel de produit"
           message: >
-            {{ trigger.to_state.attributes.new_recalls_count }} nouveau(x) rappel(s) détecté(s).
+            {{ trigger.event.data.product_name }} ({{ trigger.event.data.brand }})
+            Category: {{ trigger.event.data.category }}
 ```
+
+Filter by category:
+
+```yaml
+automation:
+  - alias: "Notify on Food Recall"
+    trigger:
+      - platform: event
+        event_type: rappel_conso_new_recall
+    condition:
+      - condition: template
+        value_template: "{{ trigger.event.data.category == 'alimentation' }}"
+    action:
+      - service: notify.mobile_app
+        data:
+          title: "🍽️ Rappel Alimentaire"
+          message: >
+            {{ trigger.event.data.product_name }}
+            Risks: {{ trigger.event.data.risks }}
+            [View recall]({{ trigger.event.data.recall_link }})
+```
+
+Filter by brand:
+
+```yaml
+automation:
+  - alias: "Carrefour Recalls"
+    trigger:
+      - platform: event
+        event_type: rappel_conso_new_recall
+    condition:
+      - condition: template
+        value_template: >
+          {{ 'carrefour' in trigger.event.data.brand | lower }}
+    action:
+      - service: notify.mobile_app
+        data:
+          title: "⚠️ Rappel Carrefour"
+          message: "{{ trigger.event.data.product_name }}"
+```
+
+## Event Data
+
+When a new recall is detected, the integration fires a `rappel_conso_new_recall` event with the following data:
+
+- `recall_id`: Unique recall identifier
+- `numero_fiche`: Recall sheet number
+- `product_name`: Product name
+- `category`: Product category (e.g., "alimentation")
+- `subcategory`: Product subcategory
+- `brand`: Brand name
+- `publication_date`: Publication date (ISO format)
+- `recall_reason`: Reason for recall
+- `risks`: Risks description
+- `recall_link`: Link to official recall page
+
+Access event data in automations with: `{{ trigger.event.data.field_name }}`
 
 ## Troubleshooting
 
@@ -88,29 +145,36 @@ automation:
 
 ## Available Fields
 
-Each recall in `recent_recalls` includes:
-- `id`, `numero_fiche`, `libelle` (product name)
-- `categorie_produit`, `sous_categorie_produit`
-- `marque_produit` (brand)
-- `motif_rappel` (recall reason)
-- `risques_encourus` (risks)
-- `date_publication` (publication date)
-- `lien_vers_la_fiche_rappel` (link to official page)
-- And many more...
+Both events and sensor attributes use English field names:
+
+### Core Fields
+- `recall_id` / `id`: Unique identifier
+- `sheet_number`: Official recall sheet number (was: numero_fiche)
+- `version_number`: Version number (was: numero_version)
+- `recall_guid`: Recall GUID (was: rappel_guid)
+- `product_name`: Product name (was: libelle)
+- `category`: Product category (was: categorie_produit)
+- `subcategory`: Product subcategory (was: sous_categorie_produit)
+- `brand`: Brand name (was: marque_produit)
+- `publication_date`: Publication date (was: date_publication)
+- `recall_reason`: Reason for recall (was: motif_rappel)
+- `risks`: Risks description (was: risques_encourus)
+- `recall_link`: Link to official recall page (was: lien_vers_la_fiche_rappel)
+- And many more fields (all with English names)
 
 ## Filtering Examples
 
 ### By Category
 ```yaml
 {{ state_attr('sensor.rappel_conso', 'recent_recalls')
-   | selectattr('categorie_produit', 'eq', 'alimentation')
+   | selectattr('category', 'eq', 'alimentation')
    | list }}
 ```
 
 ### By Brand (case-insensitive search)
 ```yaml
 {{ state_attr('sensor.rappel_conso', 'recent_recalls')
-   | selectattr('marque_produit', 'search', 'carrefour', ignorecase=True)
+   | selectattr('brand', 'search', 'carrefour', ignorecase=True)
    | list }}
 ```
 
@@ -118,7 +182,7 @@ Each recall in `recent_recalls` includes:
 ```yaml
 {% set week_ago = (now() - timedelta(days=7)).isoformat() %}
 {{ state_attr('sensor.rappel_conso', 'recent_recalls')
-   | selectattr('date_publication', '>=', week_ago)
+   | selectattr('publication_date', '>=', week_ago)
    | list }}
 ```
 

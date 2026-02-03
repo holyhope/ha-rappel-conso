@@ -85,6 +85,35 @@ pytest -v
 5. Push: `git push && git push --tags`
 6. GitHub Actions will validate HACS compatibility
 
+## Technical Decisions
+
+### HTTP Client: httpx vs datagouv-client
+
+**Decision:** Use `httpx.AsyncClient` directly instead of the official `datagouv-client` library.
+
+**Rationale:**
+
+1. **Simplicity**: The integration only needs read-only access to a single public dataset (RappelConso V2). The `datagouv-client` library is designed for full dataset management (create, update, delete operations) which is unnecessary overhead.
+
+2. **Minimal Dependencies**: Using `httpx` directly keeps the dependency tree small, which is a best practice for Home Assistant custom integrations.
+
+3. **Async-First**: The current `httpx.AsyncClient` implementation is already async/await compatible, perfect for Home Assistant's event loop.
+
+4. **Full Control**: Direct API access provides complete control over request handling, pagination, error management, and timeout configuration without abstraction layers.
+
+5. **No Rappel Conso-Specific Client**: There is no dedicated library for the Rappel Conso dataset specifically - `datagouv-client` is generic and would still require manual handling of the Rappel Conso data structure.
+
+**Implementation:**
+- HTTP client in `coordinator.py` lines 45-52
+- API constants in `const.py`
+- Pydantic models for validation in `models.py`
+
+**Alternative Considered:**
+- [datagouv-client](https://pypi.org/project/datagouv-client/) - Official Python wrapper for data.gouv.fr API
+- Rejected due to unnecessary complexity for read-only operations on a single dataset
+
+**Date:** 2026-01-30
+
 ## Project Structure
 
 ```

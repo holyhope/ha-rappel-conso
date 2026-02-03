@@ -65,32 +65,124 @@ The integration will create a single sensor: `sensor.rappel_conso`
 
 Each recall in `recent_recalls` contains:
 - `id`: Unique recall identifier
-- `numero_fiche`: Recall sheet number
-- `libelle`: Product name
-- `categorie_produit`: Product category (alimentation, etc.)
-- `sous_categorie_produit`: Product subcategory
-- `marque_produit`: Brand name
-- `motif_rappel`: Reason for recall
-- `risques_encourus`: Risks
-- `date_publication`: Publication date
-- `lien_vers_la_fiche_rappel`: Link to official recall page
-- And many more fields...
+- `sheet_number` (was: numero_fiche): Recall sheet number
+- `version_number` (was: numero_version): Version number
+- `recall_guid` (was: rappel_guid): Recall GUID
+- `product_name` (was: libelle): Product name
+- `category` (was: categorie_produit): Product category (food, cosmetics, etc.)
+- `subcategory` (was: sous_categorie_produit): Product subcategory
+- `brand` (was: marque_produit): Brand name
+- `recall_reason` (was: motif_rappel): Reason for recall
+- `risks` (was: risques_encourus): Risks description
+- `publication_date` (was: date_publication): Publication date
+- `recall_link` (was: lien_vers_la_fiche_rappel): Link to official recall page
+- And many more fields (all with English names)
+
+## Events
+
+### rappel_conso_new_recall
+
+Fired when a new product recall is detected (once per recall).
+
+**Event Data:**
+- `recall_id`: Unique recall identifier
+- `sheet_number`: Recall sheet number
+- `version_number`: Version number
+- `recall_guid`: Recall GUID
+- `product_name`: Product name
+- `category`: Product category (e.g., "alimentation")
+- `subcategory`: Product subcategory
+- `brand`: Brand name
+- `publication_date`: Publication date (ISO format)
+- `recall_reason`: Reason for recall
+- `risks`: Risks description
+- `recall_link`: Link to official recall page
+
+**Examples:**
+- Filter by category: `{{ trigger.event.data.category == 'alimentation' }}`
+- Filter by brand: `{{ 'carrefour' in trigger.event.data.brand | lower }}`
+- Access product name: `{{ trigger.event.data.product_name }}`
+- Access recall link: `{{ trigger.event.data.recall_link }}`
 
 ## Usage Examples
 
-### Template Sensor for Food Recalls
+### Event-Based Automation (Recommended)
+
+Get notified immediately when any new recall is detected:
+
+```yaml
+automation:
+  - alias: "New Product Recall Alert"
+    trigger:
+      - platform: event
+        event_type: rappel_conso_new_recall
+    action:
+      - service: notify.mobile_app
+        data:
+          title: "⚠️ New Product Recall"
+          message: >
+            {{ trigger.event.data.product_name }} ({{ trigger.event.data.brand }})
+            Category: {{ trigger.event.data.category }}
+            [View Details]({{ trigger.event.data.recall_link }})
+```
+
+### Filter by Category
+
+Get notified only for food recalls:
+
+```yaml
+automation:
+  - alias: "Food Recall Alert"
+    trigger:
+      - platform: event
+        event_type: rappel_conso_new_recall
+    condition:
+      - condition: template
+        value_template: "{{ trigger.event.data.category == 'alimentation' }}"
+    action:
+      - service: notify.mobile_app
+        data:
+          title: "🍽️ Food Product Recall"
+          message: >
+            {{ trigger.event.data.product_name }}
+            Reason: {{ trigger.event.data.recall_reason }}
+            Risks: {{ trigger.event.data.risks }}
+```
+
+### Filter by Brand
+
+Get notified when a specific brand has a recall:
+
+```yaml
+automation:
+  - alias: "Carrefour Recall Alert"
+    trigger:
+      - platform: event
+        event_type: rappel_conso_new_recall
+    condition:
+      - condition: template
+        value_template: >
+          {{ 'carrefour' in trigger.event.data.brand | lower }}
+    action:
+      - service: notify.mobile_app
+        data:
+          title: "⚠️ Carrefour Product Recall"
+          message: "{{ trigger.event.data.product_name }}"
+```
+
+### Template Sensor for Food Recalls (Alternative)
 
 Create a sensor that shows only food recalls:
 
 ```yaml
 template:
   - sensor:
-      - name: "Rappels Alimentaires"
-        unique_id: rappel_conso_alimentation
+      - name: "Food Recalls"
+        unique_id: rappel_conso_food
         state: >
           {% set recalls = state_attr('sensor.rappel_conso', 'recent_recalls') %}
           {% if recalls %}
-            {{ recalls | selectattr('categorie_produit', 'eq', 'alimentation')
+            {{ recalls | selectattr('category', 'eq', 'alimentation')
                        | list | count }}
           {% else %}
             0
@@ -99,38 +191,11 @@ template:
           recalls: >
             {% set recalls = state_attr('sensor.rappel_conso', 'recent_recalls') %}
             {% if recalls %}
-              {{ recalls | selectattr('categorie_produit', 'eq', 'alimentation')
+              {{ recalls | selectattr('category', 'eq', 'alimentation')
                          | list }}
             {% else %}
               []
             {% endif %}
-```
-
-### Automation for Brand-Specific Alerts
-
-Get notified when a specific brand has a recall:
-
-```yaml
-automation:
-  - alias: "Alerte Rappel Carrefour"
-    trigger:
-      - platform: state
-        entity_id: sensor.rappel_conso
-        attribute: new_recalls_count
-    condition:
-      - condition: template
-        value_template: >
-          {% set recalls = state_attr('sensor.rappel_conso', 'recent_recalls') %}
-          {{ recalls | selectattr('marque_produit', 'search', 'carrefour', ignorecase=True)
-                     | list | count > 0 }}
-    action:
-      - service: notify.mobile_app
-        data:
-          title: "⚠️ Rappel Produit Carrefour"
-          message: >
-            {{ (state_attr('sensor.rappel_conso', 'recent_recalls')
-                | selectattr('marque_produit', 'search', 'carrefour', ignorecase=True)
-                | list | first).libelle }}
 ```
 
 ### Lovelace Dashboard Card
@@ -140,15 +205,15 @@ Display recalls in your dashboard:
 ```yaml
 type: markdown
 content: >
-  ## 🔔 Derniers Rappels de Produits
+  ## Recent Product Recalls
 
   {% set recalls = state_attr('sensor.rappel_conso', 'recent_recalls')[:5] %}
   {% if recalls %}
     {% for recall in recalls %}
-      **{{ recall.libelle }}** ({{ recall.marque_produit }})
-      - Catégorie: {{ recall.categorie_produit }}
-      - Publié le: {{ recall.date_publication[:10] }}
-      - [Voir la fiche]({{ recall.lien_vers_la_fiche_rappel }})
+      **{{ recall.product_name }}** ({{ recall.brand }})
+      - Category: {{ recall.category }}
+      - Published: {{ recall.publication_date[:10] }}
+      - [View Details]({{ recall.recall_link }})
 
     {% endfor %}
   {% else %}
