@@ -190,3 +190,74 @@ Both events and sensor attributes use English field names:
 
 - GitHub Issues: https://github.com/holyhope/ha-rappel-conso/issues
 - README: https://github.com/holyhope/ha-rappel-conso
+
+## Search Recalls Action
+
+### Quick Example
+
+Search for recalls based on product names, brands, categories, or keywords:
+
+```yaml
+automation:
+  - alias: "Check My Products for Recalls"
+    triggers:
+      - trigger: time
+        at: "09:00:00"
+    actions:
+      - action: rappel_conso.search_recalls
+        data:
+          product_names: ["chocolate", "milk"]
+          brands: ["carrefour"]
+          limit: 50
+        response_variable: results
+      - if: "{{ results.count > 0 }}"
+        then:
+          - action: notify.notify
+            data:
+              message: "Found {{ results.count }} recalls!"
+```
+
+### Search Parameters
+
+- `product_names`: List of product names (partial match, case-insensitive)
+- `brands`: List of brand names (partial match, case-insensitive)
+- `categories`: List of categories (exact match: "alimentation", "cosmetique", etc.)
+- `keywords`: List of keywords to search across all fields
+- `limit`: Maximum results (default: 100, max: 1000)
+
+### Response Format
+
+The action returns:
+- `recalls`: List of recall objects with all fields
+- `count`: Number of results found
+
+### More Examples
+
+**Search by keywords:**
+```yaml
+action: rappel_conso.search_recalls
+data:
+  keywords: ["chocolate", "peanut"]
+  categories: ["alimentation"]
+response_variable: results
+```
+
+**Check shopping list:**
+```yaml
+action: rappel_conso.search_recalls
+data:
+  product_names:
+    - "{{ states('input_text.item_1') }}"
+    - "{{ states('input_text.item_2') }}"
+response_variable: shopping_recalls
+```
+
+**Monitor specific brand:**
+```yaml
+action: rappel_conso.search_recalls
+data:
+  brands: ["lidl"]
+  categories: ["alimentation"]
+  limit: 100
+response_variable: brand_recalls
+```

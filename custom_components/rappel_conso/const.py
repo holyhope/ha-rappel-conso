@@ -24,3 +24,13 @@ API_ORDER_BY = "date_publication DESC"
 API_LIMIT_PARAM = "limit"
 API_OFFSET_PARAM = "offset"
 API_ORDER_PARAM = "order_by"
+
+# Service configuration
+SERVICE_SEARCH_RECALLS = "search_recalls"
+
+# Service parameters
+ATTR_PRODUCT_NAMES = "product_names"
+ATTR_BRANDS = "brands"
+ATTR_CATEGORIES = "categories"
+ATTR_KEYWORDS = "keywords"
+ATTR_LIMIT = "limit"

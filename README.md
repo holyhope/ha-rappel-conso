@@ -221,6 +221,92 @@ content: >
   {% endif %}
 ```
 
+## Automation Actions
+
+### rappel_conso.search_recalls
+
+Search for product recalls based on various criteria. Returns a list of matching recalls that can be used in automation conditions or actions.
+
+**Parameters:**
+- `product_names` (optional): List of product names to search (case-insensitive, partial match)
+- `brands` (optional): List of brand names to search (case-insensitive, partial match)
+- `categories` (optional): List of categories to search (e.g., "alimentation", "cosmetique")
+- `keywords` (optional): List of keywords to search across all fields
+- `limit` (optional): Maximum number of results (default: 100, max: 1000)
+
+**Returns:**
+- `recalls`: List of matching recall objects with English field names
+- `count`: Number of recalls found
+
+**Example: Check if products in shopping list are recalled**
+
+```yaml
+automation:
+  - alias: "Check Shopping List for Recalls"
+    triggers:
+      - trigger: time
+        at: "08:00:00"
+    actions:
+      - action: rappel_conso.search_recalls
+        data:
+          product_names:
+            - "{{ states('input_text.shopping_item_1') }}"
+            - "{{ states('input_text.shopping_item_2') }}"
+          limit: 50
+        response_variable: search_result
+      - if: "{{ search_result.count > 0 }}"
+        then:
+          - action: notify.notify
+            data:
+              title: "Product Recall Alert!"
+              message: >
+                Found {{ search_result.count }} recalled products in your shopping list:
+                {% for recall in search_result.recalls %}
+                - {{ recall.product_name }} ({{ recall.brand }})
+                {% endfor %}
+```
+
+**Example: Monitor specific brands**
+
+```yaml
+automation:
+  - alias: "Check Carrefour Products Daily"
+    triggers:
+      - trigger: time
+        at: "09:00:00"
+    actions:
+      - action: rappel_conso.search_recalls
+        data:
+          brands: ["carrefour"]
+          categories: ["alimentation"]
+          limit: 100
+        response_variable: recalls
+      - action: persistent_notification.create
+        data:
+          title: "Carrefour Food Recalls"
+          message: "Found {{ recalls.count }} food recalls from Carrefour"
+```
+
+**Example: Search by keywords**
+
+```yaml
+automation:
+  - alias: "Search for Chocolate Products"
+    triggers:
+      - trigger: state
+        entity_id: input_boolean.check_chocolate_recalls
+        to: "on"
+    actions:
+      - action: rappel_conso.search_recalls
+        data:
+          keywords: ["chocolate", "chocolat"]
+          categories: ["alimentation"]
+        response_variable: results
+      - action: notify.notify
+        data:
+          message: "Found {{ results.count }} chocolate-related recalls"
+```
+
 ## Filtering by Category
 
 Product categories available:

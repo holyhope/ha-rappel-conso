@@ -15,5 +15,47 @@
     "abort": {
       "already_configured": "This integration is already configured."
     }
+  },
+  "services": {
+    "search_recalls": {
+      "name": "Search for product recalls",
+      "description": "Search for product recalls based on product names, brands, categories, or keywords.",
+      "fields": {
+        "product_names": {
+          "name": "Product names",
+          "description": "List of product names to search for (case-insensitive, partial match)"
+        },
+        "brands": {
+          "name": "Brands",
+          "description": "List of brand names to search for (case-insensitive, partial match)"
+        },
+        "categories": {
+          "name": "Categories",
+          "description": "List of product categories to search for"
+        },
+        "keywords": {
+          "name": "Keywords",
+          "description": "List of keywords to search across all fields"
+        },
+        "limit": {
+          "name": "Limit",
+          "description": "Maximum number of recalls to return"
+        }
+      }
+    }
+  },
+  "exceptions": {
+    "no_config_entry": {
+      "message": "No Rappel Conso configuration found. Please add the integration first."
+    },
+    "config_entry_not_loaded": {
+      "message": "Rappel Conso integration is not loaded. Please reload the integration."
+    },
+    "no_search_criteria": {
+      "message": "At least one search criterion (product_names, brands, categories, or keywords) must be provided."
+    },
+    "search_failed": {
+      "message": "Failed to search recalls: {error}"
+    }
   }
 }

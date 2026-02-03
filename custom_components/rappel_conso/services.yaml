@@ -1,0 +1,38 @@
+search_recalls:
+  name: Search for product recalls
+  description: Search for product recalls based on product names, brands, categories, or keywords.
+  fields:
+    product_names:
+      name: Product names
+      description: List of product names to search for (case-insensitive, partial match)
+      example: '["cookie dough", "ice cream"]'
+      selector:
+        object:
+    brands:
+      name: Brands
+      description: List of brand names to search for (case-insensitive, partial match)
+      example: '["carrefour", "lidl"]'
+      selector:
+        object:
+    categories:
+      name: Categories
+      description: List of product categories to search for (e.g., "alimentation", "cosmetique")
+      example: '["alimentation"]'
+      selector:
+        object:
+    keywords:
+      name: Keywords
+      description: List of keywords to search across all fields (product name, brand, category, etc.)
+      example: '["chocolate", "frozen"]'
+      selector:
+        object:
+    limit:
+      name: Limit
+      description: Maximum number of recalls to return (default 100)
+      example: 50
+      default: 100
+      selector:
+        number:
+          min: 1
+          max: 1000
+          mode: box

@@ -15,5 +15,47 @@
     "abort": {
       "already_configured": "Cette intégration est déjà configurée."
     }
+  },
+  "services": {
+    "search_recalls": {
+      "name": "Rechercher des rappels de produits",
+      "description": "Rechercher des rappels de produits par nom, marque, catégorie ou mots-clés.",
+      "fields": {
+        "product_names": {
+          "name": "Noms de produits",
+          "description": "Liste des noms de produits à rechercher (insensible à la casse, correspondance partielle)"
+        },
+        "brands": {
+          "name": "Marques",
+          "description": "Liste des marques à rechercher (insensible à la casse, correspondance partielle)"
+        },
+        "categories": {
+          "name": "Catégories",
+          "description": "Liste des catégories de produits à rechercher"
+        },
+        "keywords": {
+          "name": "Mots-clés",
+          "description": "Liste de mots-clés à rechercher dans tous les champs"
+        },
+        "limit": {
+          "name": "Limite",
+          "description": "Nombre maximum de rappels à retourner"
+        }
+      }
+    }
+  },
+  "exceptions": {
+    "no_config_entry": {
+      "message": "Aucune configuration Rappel Conso trouvée. Veuillez d'abord ajouter l'intégration."
+    },
+    "config_entry_not_loaded": {
+      "message": "L'intégration Rappel Conso n'est pas chargée. Veuillez recharger l'intégration."
+    },
+    "no_search_criteria": {
+      "message": "Au moins un critère de recherche (product_names, brands, categories ou keywords) doit être fourni."
+    },
+    "search_failed": {
+      "message": "Échec de la recherche de rappels: {error}"
+    }
   }
 }

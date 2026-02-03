@@ -76,6 +76,117 @@ class RappelConsoCoordinator(DataUpdateCoordinator[dict[str, Any]]):
                 )
         _LOGGER.debug("Fired %d new recall events", len(new_recall_ids))
 
+    async def async_search_recalls(  # pylint: disable=too-many-locals,too-many-positional-arguments
+        self,
+        product_names: list[str] | None = None,
+        brands: list[str] | None = None,
+        categories: list[str] | None = None,
+        keywords: list[str] | None = None,
+        limit: int = 100,
+    ) -> list[dict[str, Any]]:
+        """Search for recalls matching the given criteria.
+
+        Uses ODSQL (Opendatasoft Query Language) for the where clause.
+        Documentation: https://help.opendatasoft.com/apis/ods-explore-v2/
+
+        Args:
+            product_names: List of product names to search
+                (case-insensitive, partial match)
+            brands: List of brand names to search
+                (case-insensitive, partial match)
+            categories: List of categories to search (exact match)
+            keywords: List of keywords to search across all fields
+                (case-insensitive, partial match)
+            limit: Maximum number of results to return
+
+        Returns:
+            List of matching recalls with English field names
+
+        Raises:
+            httpx.HTTPError: If API request fails
+        """
+        import urllib.parse
+
+        client = await self._get_client()
+
+        # Build API query parameters
+        params = {
+            API_LIMIT_PARAM: min(limit, 1000),  # API max limit
+            API_OFFSET_PARAM: 0,
+            API_ORDER_PARAM: API_ORDER_BY,
+        }
+
+        # Build ODSQL where clause
+        # Note: ODSQL supports SQL-like LIKE operator with wildcards (%)
+        # Case-insensitive by default
+        where_clauses = []
+
+        if product_names:
+            # Search in libelle field (product name)
+            # Use LIKE with wildcards for partial matching
+            product_conditions = " OR ".join(
+                f"libelle like '%{urllib.parse.quote(name, safe='')}%'"
+                for name in product_names
+            )
+            where_clauses.append(f"({product_conditions})")
+
+        if brands:
+            # Search in marque_produit field (brand)
+            brand_conditions = " OR ".join(
+                f"marque_produit like '%{urllib.parse.quote(brand, safe='')}%'"
+                for brand in brands
+            )
+            where_clauses.append(f"({brand_conditions})")
+
+        if categories:
+            # Search in categorie_produit field (exact match)
+            category_conditions = " OR ".join(
+                f"categorie_produit='{urllib.parse.quote(cat, safe='')}'"
+                for cat in categories
+            )
+            where_clauses.append(f"({category_conditions})")
+
+        if keywords:
+            # Search across multiple fields for maximum flexibility
+            keyword_conditions = []
+            for keyword in keywords:
+                escaped_keyword = urllib.parse.quote(keyword, safe="")
+                keyword_conditions.append(
+                    f"(libelle like '%{escaped_keyword}%' OR "
+                    f"marque_produit like '%{escaped_keyword}%' OR "
+                    f"sous_categorie_produit like '%{escaped_keyword}%' OR "
+                    f"motif_rappel like '%{escaped_keyword}%')"
+                )
+            where_clauses.append(f"({' OR '.join(keyword_conditions)})")
+
+        # Combine all where clauses with AND
+        if where_clauses:
+            params["where"] = " AND ".join(where_clauses)
+
+        _LOGGER.debug("Searching recalls with params: %s", params)
+
+        try:
+            response = await client.get(API_ENDPOINT, params=params)
+            response.raise_for_status()
+
+            data = response.json()
+            api_response = APIResponse(**data)
+
+            # Convert to English field names
+            results = [recall.to_english_dict() for recall in api_response.results]
+
+            _LOGGER.info(
+                "Found %d recalls matching search criteria (total: %d)",
+                len(results),
+                api_response.total_count,
+            )
+
+            return results  # noqa: TRY300
+
+        except httpx.HTTPError:
+            _LOGGER.exception("Error searching recalls")
+            raise
+
     async def _async_update_data(self) -> dict[str, Any]:
         """Fetch data from API."""
         try:
