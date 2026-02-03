@@ -90,7 +90,7 @@ async def test_search_by_product_names(hass: HomeAssistant, init_integration):
     }
 
     # Get the client and patch its get method
-    client = await coordinator._get_client()  # noqa: SLF001
+    client = await coordinator._get_client()
     response = AsyncMock(spec=Response)
     response.json.return_value = search_response
     response.raise_for_status = AsyncMock()
@@ -116,7 +116,7 @@ async def test_search_by_brands(hass: HomeAssistant, init_integration):
 
     search_response = {"total_count": 0, "results": []}
 
-    client = await coordinator._get_client()  # noqa: SLF001
+    client = await coordinator._get_client()
     response = AsyncMock(spec=Response)
     response.json.return_value = search_response
     response.raise_for_status = AsyncMock()
@@ -140,7 +140,7 @@ async def test_search_by_categories(hass: HomeAssistant, init_integration):
 
     search_response = {"total_count": 0, "results": []}
 
-    client = await coordinator._get_client()  # noqa: SLF001
+    client = await coordinator._get_client()
     response = AsyncMock(spec=Response)
     response.json.return_value = search_response
     response.raise_for_status = AsyncMock()
@@ -164,7 +164,7 @@ async def test_search_by_keywords(hass: HomeAssistant, init_integration):
 
     search_response = {"total_count": 0, "results": []}
 
-    client = await coordinator._get_client()  # noqa: SLF001
+    client = await coordinator._get_client()
     response = AsyncMock(spec=Response)
     response.json.return_value = search_response
     response.raise_for_status = AsyncMock()
@@ -188,7 +188,7 @@ async def test_search_multiple_criteria(hass: HomeAssistant, init_integration):
 
     search_response = {"total_count": 0, "results": []}
 
-    client = await coordinator._get_client()  # noqa: SLF001
+    client = await coordinator._get_client()
     response = AsyncMock(spec=Response)
     response.json.return_value = search_response
     response.raise_for_status = AsyncMock()
@@ -281,7 +281,7 @@ async def test_search_response_format(hass: HomeAssistant, init_integration):
         ],
     }
 
-    client = await coordinator._get_client()  # noqa: SLF001
+    client = await coordinator._get_client()
     response = AsyncMock(spec=Response)
     response.json.return_value = search_response
     response.raise_for_status = AsyncMock()

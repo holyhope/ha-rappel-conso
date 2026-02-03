@@ -20,7 +20,7 @@ class RecallData(BaseModel):
     sous_categorie_produit: str | None = None
     marque_produit: str | None = None
     modeles_ou_references: str | None = None
-    identification_produits: str | None = None
+    identification_produits: list[str] | None = None
     conditionnements: str | None = None
     date_debut_commercialisation: str | None = None
     date_date_fin_commercialisation: str | None = None
