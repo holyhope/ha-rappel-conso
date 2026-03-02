@@ -11,13 +11,8 @@ API_ENDPOINT = f"{API_BASE_URL}/catalog/datasets/{API_DATASET}/records"
 # Update configuration
 DEFAULT_SCAN_INTERVAL = 3600  # 1 hour in seconds
 FETCH_LIMIT = 100  # Number of records to fetch per API call
-MAX_RECENT_RECALLS = 50  # Maximum number of recalls to keep in sensor attributes
+MAX_RECENT_RECALLS = 50  # Maximum number of recalls to keep in coordinator
 MAX_CACHE_SIZE = 1000  # Maximum recall IDs to keep in cache
-
-# Sensor configuration
-SENSOR_NAME = "Rappel Conso"
-SENSOR_ICON = "mdi:alert-circle"
-ATTRIBUTION = "Data from data.gouv.fr - RappelConso"
 
 # API parameters
 API_ORDER_BY = "date_publication DESC"
@@ -27,6 +22,10 @@ API_ORDER_PARAM = "order_by"
 
 # Service configuration
 SERVICE_SEARCH_RECALLS = "search_recalls"
+SERVICE_FIRE_TEST_RECALL = "fire_test_recall"
+
+# Event (for testing and automation)
+EVENT_NEW_RECALL = "rappel_conso_new_recall"
 
 # Service parameters
 ATTR_PRODUCT_NAMES = "product_names"

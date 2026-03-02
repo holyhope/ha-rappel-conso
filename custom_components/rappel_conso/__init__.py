@@ -24,13 +24,15 @@ from .const import (
     ATTR_LIMIT,
     ATTR_PRODUCT_NAMES,
     DOMAIN,
+    EVENT_NEW_RECALL,
+    SERVICE_FIRE_TEST_RECALL,
     SERVICE_SEARCH_RECALLS,
 )
 from .coordinator import RappelConsoCoordinator
 
 _LOGGER = logging.getLogger(__name__)
 
-PLATFORMS: list[Platform] = [Platform.SENSOR]
+PLATFORMS: list[Platform] = []
 
 
 async def async_setup(  # pylint: disable=unused-argument
@@ -116,6 +118,28 @@ async def async_setup(  # pylint: disable=unused-argument
         schema=service_schema,
         supports_response=SupportsResponse.ONLY,
     )
+
+    def handle_fire_test_recall(_call: ServiceCall) -> None:
+        """Fire a fake rappel_conso_new_recall event for testing automations."""
+        hass.bus.fire(
+            EVENT_NEW_RECALL,
+            {
+                "recall_id": 0,
+                "sheet_number": "TEST-001",
+                "version_number": 1,
+                "recall_guid": "test-guid",
+                "product_name": "Produit de test (Rappel Conso)",
+                "category": "alimentation",
+                "subcategory": "test",
+                "brand": "Marque test",
+                "publication_date": "2026-01-01T12:00:00+00:00",
+                "recall_reason": "Rappel de test pour vérifier l'automatisation.",
+                "risks": "Aucun risque - événement de test.",
+                "recall_link": "https://rappel.conso.gouv.fr",
+            },
+        )
+
+    hass.services.async_register(DOMAIN, SERVICE_FIRE_TEST_RECALL, handle_fire_test_recall)
 
     return True
 

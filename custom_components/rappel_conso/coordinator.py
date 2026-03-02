@@ -19,6 +19,7 @@ from .const import (
     API_ORDER_PARAM,
     DEFAULT_SCAN_INTERVAL,
     DOMAIN,
+    EVENT_NEW_RECALL,
     FETCH_LIMIT,
     MAX_CACHE_SIZE,
     MAX_RECENT_RECALLS,
@@ -43,11 +44,17 @@ class RappelConsoCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         self._client: httpx.AsyncClient | None = None
 
     async def _get_client(self) -> httpx.AsyncClient:
-        """Get or create HTTP client."""
+        """Get or create HTTP client.
+
+        Client creation is run in an executor to avoid blocking the event loop
+        (httpx loads SSL certs synchronously via load_verify_locations).
+        """
         if self._client is None:
-            self._client = httpx.AsyncClient(
-                timeout=30.0,
-                follow_redirects=True,
+            self._client = await self.hass.async_add_executor_job(
+                lambda: httpx.AsyncClient(
+                    timeout=30.0,
+                    follow_redirects=True,
+                )
             )
         return self._client
 
@@ -58,7 +65,7 @@ class RappelConsoCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         for recall in all_recalls:
             if recall.get("id") in new_recall_ids:
                 self.hass.bus.async_fire(
-                    "rappel_conso_new_recall",
+                    EVENT_NEW_RECALL,
                     {
                         "recall_id": recall.get("id"),
                         "sheet_number": recall.get("sheet_number"),
@@ -253,9 +260,6 @@ class RappelConsoCoordinator(DataUpdateCoordinator[dict[str, Any]]):
                     sorted_ids = sorted(self._known_recall_ids)
                     self._known_recall_ids = set(sorted_ids[-MAX_CACHE_SIZE:])
 
-            # Keep only most recent recalls for sensor attributes
-            recent_recalls = all_recalls[:MAX_RECENT_RECALLS]
-
             _LOGGER.info(
                 "Fetched %d recalls (%d new) - Total in dataset: %d",
                 len(all_recalls),
@@ -267,12 +271,7 @@ class RappelConsoCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             if new_recall_ids:
                 self._fire_new_recall_events(all_recalls, new_recall_ids)
 
-            return {
-                "total_count": total_count,
-                "recent_recalls": recent_recalls,
-                "new_recalls_count": len(new_recall_ids),
-                "last_update": dt_util.utcnow().isoformat(),
-            }
+            return {}
 
         except httpx.HTTPStatusError as err:
             raise UpdateFailed(

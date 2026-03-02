@@ -87,20 +87,6 @@ async def test_unload_entry(hass: HomeAssistant, mock_config_entry, mock_httpx_c
     assert mock_config_entry.entry_id not in hass.data.get(DOMAIN, {})
 
 
-async def test_sensor_state(hass: HomeAssistant, mock_config_entry, mock_httpx_client):
-    """Test sensor state."""
-    assert await hass.config_entries.async_setup(mock_config_entry.entry_id)
-    await hass.async_block_till_done()
-
-    state = hass.states.get("sensor.rappel_conso")
-    assert state is not None
-    assert state.state == "16341"
-    # Check for new_recalls_count (may be 0 or 1 depending on coordinator state)
-    assert "new_recalls_count" in state.attributes
-    assert len(state.attributes["recent_recalls"]) == 1
-    assert state.attributes["recent_recalls"][0]["product_name"] == "glace cookie dough"
-
-
 async def test_event_firing(hass: HomeAssistant, mock_config_entry, mock_httpx_client):
     """Test that events are fired for new recalls."""
     events = []
@@ -145,38 +131,3 @@ async def test_event_firing(hass: HomeAssistant, mock_config_entry, mock_httpx_c
         event_data["category"] == MOCK_API_RESPONSE["results"][0]["categorie_produit"]
     )
     assert event_data["brand"] == MOCK_API_RESPONSE["results"][0]["marque_produit"]
-
-
-async def test_english_field_mapping(
-    hass: HomeAssistant, mock_config_entry, mock_httpx_client
-):
-    """Test that French API fields are correctly mapped to English."""
-    assert await hass.config_entries.async_setup(mock_config_entry.entry_id)
-    await hass.async_block_till_done()
-
-    state = hass.states.get("sensor.rappel_conso")
-    assert state is not None
-
-    recall = state.attributes["recent_recalls"][0]
-
-    # Verify all major field mappings
-    assert "product_name" in recall
-    assert "category" in recall
-    assert "subcategory" in recall
-    assert "brand" in recall
-    assert "publication_date" in recall
-    assert "recall_reason" in recall
-    assert "risks" in recall
-    assert "recall_link" in recall
-    assert "sheet_number" in recall
-
-    # Verify French fields are NOT present
-    assert "libelle" not in recall
-    assert "categorie_produit" not in recall
-    assert "marque_produit" not in recall
-
-    # Verify data integrity (values match)
-    assert recall["product_name"] == "glace cookie dough"
-    assert recall["category"] == "alimentation"
-    assert recall["brand"] == "carrefour sensation"
-    assert recall["sheet_number"] == "2021-06-0255"

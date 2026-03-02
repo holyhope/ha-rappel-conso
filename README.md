@@ -9,8 +9,7 @@ A Home Assistant custom integration that monitors French product recalls (Rappel
 ## Features
 
 - 🔔 **Real-time monitoring** of French product recalls
-- 📊 **Single sensor** with all recall data as attributes
-- 🎯 **Flexible filtering** using Home Assistant templates and automations
+- 🎯 **Flexible filtering** via events and the `search_recalls` service
 - 🚀 **Zero configuration** - one-click setup
 - 🔄 **Hourly updates** from official government data
 - 🌍 **Bilingual** - French and English support
@@ -46,37 +45,6 @@ A Home Assistant custom integration that monitors French product recalls (Rappel
 2. Click **Add Integration**
 3. Search for "Rappel Conso"
 4. Click to add - no configuration needed!
-
-The integration will create a single sensor: `sensor.rappel_conso`
-
-## Sensor Data
-
-### Main Sensor: `sensor.rappel_conso`
-
-**State**: Total number of recalls in the dataset
-
-**Attributes**:
-- `last_update`: Timestamp of last check
-- `new_recalls_count`: Number of new recalls since last check
-- `recent_recalls`: List of 50 most recent recalls with all fields
-- `attribution`: Data source attribution
-
-### Recall Fields
-
-Each recall in `recent_recalls` contains:
-- `id`: Unique recall identifier
-- `sheet_number` (was: numero_fiche): Recall sheet number
-- `version_number` (was: numero_version): Version number
-- `recall_guid` (was: rappel_guid): Recall GUID
-- `product_name` (was: libelle): Product name
-- `category` (was: categorie_produit): Product category (food, cosmetics, etc.)
-- `subcategory` (was: sous_categorie_produit): Product subcategory
-- `brand` (was: marque_produit): Brand name
-- `recall_reason` (was: motif_rappel): Reason for recall
-- `risks` (was: risques_encourus): Risks description
-- `publication_date` (was: date_publication): Publication date
-- `recall_link` (was: lien_vers_la_fiche_rappel): Link to official recall page
-- And many more fields (all with English names)
 
 ## Events
 
@@ -168,57 +136,6 @@ automation:
         data:
           title: "⚠️ Carrefour Product Recall"
           message: "{{ trigger.event.data.product_name }}"
-```
-
-### Template Sensor for Food Recalls (Alternative)
-
-Create a sensor that shows only food recalls:
-
-```yaml
-template:
-  - sensor:
-      - name: "Food Recalls"
-        unique_id: rappel_conso_food
-        state: >
-          {% set recalls = state_attr('sensor.rappel_conso', 'recent_recalls') %}
-          {% if recalls %}
-            {{ recalls | selectattr('category', 'eq', 'alimentation')
-                       | list | count }}
-          {% else %}
-            0
-          {% endif %}
-        attributes:
-          recalls: >
-            {% set recalls = state_attr('sensor.rappel_conso', 'recent_recalls') %}
-            {% if recalls %}
-              {{ recalls | selectattr('category', 'eq', 'alimentation')
-                         | list }}
-            {% else %}
-              []
-            {% endif %}
-```
-
-### Lovelace Dashboard Card
-
-Display recalls in your dashboard:
-
-```yaml
-type: markdown
-content: >
-  ## Recent Product Recalls
-
-  {% set recalls = state_attr('sensor.rappel_conso', 'recent_recalls')[:5] %}
-  {% if recalls %}
-    {% for recall in recalls %}
-      **{{ recall.product_name }}** ({{ recall.brand }})
-      - Category: {{ recall.category }}
-      - Published: {{ recall.publication_date[:10] }}
-      - [View Details]({{ recall.recall_link }})
-
-    {% endfor %}
-  {% else %}
-    Aucun rappel récent
-  {% endif %}
 ```
 
 ## Automation Actions
@@ -327,7 +244,7 @@ This integration uses the official French government open data:
 
 ## Troubleshooting
 
-### Sensor shows "unavailable"
+### Integration or API issues
 
 - Check your internet connection
 - Verify the API is accessible: https://data.economie.gouv.fr
@@ -336,14 +253,8 @@ This integration uses the official French government open data:
 ### No new recalls detected
 
 - The dataset updates hourly, be patient
-- Check the `last_update` attribute to see when last sync occurred
 - Recalls are only added when genuinely new products are recalled
-
-### Template sensors not working
-
-- Verify the main sensor `sensor.rappel_conso` exists and has data
-- Check for typos in field names (they're case-sensitive)
-- Test your templates in Developer Tools → Template
+- Check Home Assistant logs to confirm the coordinator is fetching data
 
 ## Contributing
 

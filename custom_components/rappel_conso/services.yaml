@@ -1,3 +1,8 @@
+fire_test_recall:
+  name: Fire test recall event
+  description: Fires a fake rappel_conso_new_recall event for testing automations. Does not call the API.
+  fields: {}
+
 search_recalls:
   name: Search for product recalls
   description: Search for product recalls based on product names, brands, categories, or keywords.

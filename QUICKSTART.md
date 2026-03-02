@@ -25,30 +25,10 @@
 
 ## First Steps After Installation
 
-### Check the Sensor
+### Verify setup
 
-Go to Developer Tools → States and look for `sensor.rappel_conso`
-
-You should see:
-- **State**: Total number of recalls (e.g., "16341")
-- **Attributes**:
-  - `last_update`: When data was last fetched
-  - `new_recalls_count`: New recalls since last check
-  - `recent_recalls`: Array of 50 most recent recalls
-
-### Create Your First Template Sensor
-
-Add to your `configuration.yaml`:
-
-```yaml
-template:
-  - sensor:
-      - name: "Food Recalls"
-        state: >
-          {{ state_attr('sensor.rappel_conso', 'recent_recalls')
-             | selectattr('categorie_produit', 'eq', 'alimentation')
-             | list | count }}
-```
+- In **Settings → Devices & Services**, confirm the Rappel Conso integration is loaded.
+- Use **Developer Tools → Services** to call `rappel_conso.search_recalls` (e.g. with `product_names: ["test"]`) or listen for `rappel_conso_new_recall` events.
 
 ### Create Your First Automation
 
@@ -114,7 +94,7 @@ automation:
 When a new recall is detected, the integration fires a `rappel_conso_new_recall` event with the following data:
 
 - `recall_id`: Unique recall identifier
-- `numero_fiche`: Recall sheet number
+- `sheet_number`: Recall sheet number
 - `product_name`: Product name
 - `category`: Product category (e.g., "alimentation")
 - `subcategory`: Product subcategory
@@ -128,24 +108,19 @@ Access event data in automations with: `{{ trigger.event.data.field_name }}`
 
 ## Troubleshooting
 
-### Sensor shows "unavailable"
+### Integration or API issues
 - Check Home Assistant logs: Settings → System → Logs
 - Verify internet connection
 - Test API manually: https://data.economie.gouv.fr/api/explore/v2.1/catalog/datasets/rappelconso-v2-gtin-espaces/records?limit=1
 
-### No data in attributes
-- Wait for first update (up to 1 hour)
-- Force update by reloading the integration
+### No new recalls or search returns nothing
+- Wait for first coordinator update (up to 1 hour) if you rely on events
+- Reload the integration to force a refresh
 - Check logs for errors
-
-### Templates not working
-- Verify field names match API response (case-sensitive)
-- Test templates in Developer Tools → Template
-- Check that `recent_recalls` is not empty
 
 ## Available Fields
 
-Both events and sensor attributes use English field names:
+Events and the `search_recalls` response use English field names:
 
 ### Core Fields
 - `recall_id` / `id`: Unique identifier
@@ -162,29 +137,9 @@ Both events and sensor attributes use English field names:
 - `recall_link`: Link to official recall page (was: lien_vers_la_fiche_rappel)
 - And many more fields (all with English names)
 
-## Filtering Examples
+## Filtering with search_recalls
 
-### By Category
-```yaml
-{{ state_attr('sensor.rappel_conso', 'recent_recalls')
-   | selectattr('category', 'eq', 'alimentation')
-   | list }}
-```
-
-### By Brand (case-insensitive search)
-```yaml
-{{ state_attr('sensor.rappel_conso', 'recent_recalls')
-   | selectattr('brand', 'search', 'carrefour', ignorecase=True)
-   | list }}
-```
-
-### By Date (recent 7 days)
-```yaml
-{% set week_ago = (now() - timedelta(days=7)).isoformat() %}
-{{ state_attr('sensor.rappel_conso', 'recent_recalls')
-   | selectattr('publication_date', '>=', week_ago)
-   | list }}
-```
+Use the `rappel_conso.search_recalls` service to filter by category, brand, or keywords. See the "Search Recalls Action" section below for parameters and examples. In automations, filter event data with conditions (e.g. `trigger.event.data.category == 'alimentation'`).
 
 ## Support
 

@@ -17,6 +17,11 @@
     }
   },
   "services": {
+    "fire_test_recall": {
+      "name": "Déclencher un rappel de test",
+      "description": "Émet un faux événement rappel_conso_new_recall pour tester les automatisations. N'appelle pas l'API.",
+      "fields": {}
+    },
     "search_recalls": {
       "name": "Rechercher des rappels de produits",
       "description": "Rechercher des rappels de produits par nom, marque, catégorie ou mots-clés.",

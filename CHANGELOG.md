@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.0] - 2026-02-24
+
+### Removed
+
+- Built-in sensor `sensor.rappel_conso`. Use the `rappel_conso_new_recall` event and the `rappel_conso.search_recalls` service instead.
+
+### BREAKING CHANGES
+
+- Automations or dashboards that reference `sensor.rappel_conso` or its attributes will need to be updated to use events and/or the search service.
+
 ## [1.0.0] - 2026-01-30
 
 ### Added
