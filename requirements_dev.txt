@@ -1,6 +1,5 @@
-# Runtime dependency used directly by the integration. Home Assistant's test
-# package provides its supported pydantic version.
-httpx>=0.27.0
+# Runtime dependencies
+-r requirements.txt
 
 # Testing
 pytest>=7.4.0
