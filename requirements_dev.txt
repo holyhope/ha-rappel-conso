@@ -2,8 +2,7 @@
 -r requirements.txt
 
 # Testing
--r requirements_homeassistant.txt
-# The test helper pins compatible pytest, coverage, and Pydantic versions.
+# The helper pins Home Assistant, pytest, coverage, and Pydantic together.
 pytest>=9.0.0
 pytest-homeassistant-custom-component>=0.13.375
 pytest-cov>=7.0.0
