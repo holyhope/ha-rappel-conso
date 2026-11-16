@@ -3,6 +3,5 @@
   "content_in_root": false,
   "filename": "rappel_conso",
   "render_readme": true,
-  "domains": [],
   "homeassistant": "2024.1.0"
 }

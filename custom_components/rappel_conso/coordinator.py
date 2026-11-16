@@ -3,13 +3,13 @@
 from __future__ import annotations
 
 import logging
+import urllib.parse
 from datetime import timedelta
 from typing import Any
 
 import httpx
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
-from homeassistant.util import dt as dt_util
 
 from .const import (
     API_ENDPOINT,
@@ -112,8 +112,6 @@ class RappelConsoCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         Raises:
             httpx.HTTPError: If API request fails
         """
-        import urllib.parse
-
         client = await self._get_client()
 
         # Build API query parameters
@@ -271,8 +269,6 @@ class RappelConsoCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             if new_recall_ids:
                 self._fire_new_recall_events(all_recalls, new_recall_ids)
 
-            return {}
-
         except httpx.HTTPStatusError as err:
             raise UpdateFailed(
                 f"HTTP error occurred: {err.response.status_code}"
@@ -282,6 +278,8 @@ class RappelConsoCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         except Exception as err:
             _LOGGER.exception("Unexpected error fetching recall data")
             raise UpdateFailed(f"Unexpected error: {err}") from err
+
+        return {}
 
     async def async_shutdown(self) -> None:
         """Shutdown coordinator and cleanup resources."""
