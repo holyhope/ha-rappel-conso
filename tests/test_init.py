@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from unittest.mock import AsyncMock, patch
+from unittest.mock import AsyncMock, Mock, patch
 
 import pytest
 from homeassistant.config_entries import ConfigEntryState
@@ -42,7 +42,7 @@ def mock_httpx_client():
         client = AsyncMock()
         response = AsyncMock(spec=Response)
         response.json.return_value = MOCK_API_RESPONSE
-        response.raise_for_status = AsyncMock()
+        response.raise_for_status = Mock()
         client.get.return_value = response
         client.aclose = AsyncMock()
         mock.return_value = client

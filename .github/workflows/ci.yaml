@@ -17,12 +17,12 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: "3.13"
+          python-version: "3.14"
 
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install ruff pylint httpx pydantic
+          pip install -r requirements.txt 'ruff>=0.17.5' 'pylint>=4.1.4'
 
       - name: Ruff check
         run: ruff check custom_components/rappel_conso
@@ -38,7 +38,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ["3.13"]
+        python-version: ["3.14"]
     steps:
       - uses: actions/checkout@v4
 
@@ -50,7 +50,8 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install -r requirements_dev.txt
+          pip install uv
+          uv pip install --system -r requirements_dev.txt --override requirements_homeassistant.txt
 
       - name: Run tests with coverage
         run: |
@@ -58,7 +59,7 @@ jobs:
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v4
-        if: matrix.python-version == '3.13'
+        if: matrix.python-version == '3.14'
         with:
           files: ./coverage.xml
           flags: unittests

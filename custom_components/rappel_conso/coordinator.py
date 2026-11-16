@@ -115,7 +115,7 @@ class RappelConsoCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         client = await self._get_client()
 
         # Build API query parameters
-        params = {
+        params: dict[str, str | int] = {
             API_LIMIT_PARAM: min(limit, 1000),  # API max limit
             API_OFFSET_PARAM: 0,
             API_ORDER_PARAM: API_ORDER_BY,
@@ -204,7 +204,7 @@ class RappelConsoCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             total_count = 0
 
             while True:
-                params = {
+                params: dict[str, str | int] = {
                     API_LIMIT_PARAM: FETCH_LIMIT,
                     API_OFFSET_PARAM: offset,
                     API_ORDER_PARAM: API_ORDER_BY,
@@ -278,6 +278,7 @@ class RappelConsoCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         except Exception as err:
             _LOGGER.exception("Unexpected error fetching recall data")
             raise UpdateFailed(f"Unexpected error: {err}") from err
+        return {}
 
         return {}
 

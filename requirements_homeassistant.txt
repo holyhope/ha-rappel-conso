@@ -1,0 +1,3 @@
+# Target the latest stable Home Assistant even when the test helper pins an older one.
+# Install with: uv pip install -r requirements_dev.txt --override requirements_homeassistant.txt
+homeassistant==2026.11.1

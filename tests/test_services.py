@@ -1,6 +1,6 @@
 """Tests for Rappel Conso service actions."""
 
-from unittest.mock import AsyncMock, patch
+from unittest.mock import AsyncMock, Mock, patch
 
 import pytest
 from homeassistant.config_entries import ConfigEntry
@@ -54,7 +54,7 @@ async def init_integration(hass: HomeAssistant) -> ConfigEntry:
                 }
             ],
         }
-        response.raise_for_status = AsyncMock()
+        response.raise_for_status = Mock()
         client.get.return_value = response
         client.aclose = AsyncMock()
         mock_client_class.return_value = client
@@ -93,7 +93,7 @@ async def test_search_by_product_names(hass: HomeAssistant, init_integration):
     client = await coordinator._get_client()
     response = AsyncMock(spec=Response)
     response.json.return_value = search_response
-    response.raise_for_status = AsyncMock()
+    response.raise_for_status = Mock()
 
     with patch.object(client, "get", return_value=response):
         response_data = await hass.services.async_call(
@@ -119,7 +119,7 @@ async def test_search_by_brands(hass: HomeAssistant, init_integration):
     client = await coordinator._get_client()
     response = AsyncMock(spec=Response)
     response.json.return_value = search_response
-    response.raise_for_status = AsyncMock()
+    response.raise_for_status = Mock()
 
     with patch.object(client, "get", return_value=response):
         response_data = await hass.services.async_call(
@@ -143,7 +143,7 @@ async def test_search_by_categories(hass: HomeAssistant, init_integration):
     client = await coordinator._get_client()
     response = AsyncMock(spec=Response)
     response.json.return_value = search_response
-    response.raise_for_status = AsyncMock()
+    response.raise_for_status = Mock()
 
     with patch.object(client, "get", return_value=response):
         response_data = await hass.services.async_call(
@@ -167,7 +167,7 @@ async def test_search_by_keywords(hass: HomeAssistant, init_integration):
     client = await coordinator._get_client()
     response = AsyncMock(spec=Response)
     response.json.return_value = search_response
-    response.raise_for_status = AsyncMock()
+    response.raise_for_status = Mock()
 
     with patch.object(client, "get", return_value=response):
         response_data = await hass.services.async_call(
@@ -191,7 +191,7 @@ async def test_search_multiple_criteria(hass: HomeAssistant, init_integration):
     client = await coordinator._get_client()
     response = AsyncMock(spec=Response)
     response.json.return_value = search_response
-    response.raise_for_status = AsyncMock()
+    response.raise_for_status = Mock()
 
     with patch.object(client, "get", return_value=response) as mock_get:
         response_data = await hass.services.async_call(
@@ -284,7 +284,7 @@ async def test_search_response_format(hass: HomeAssistant, init_integration):
     client = await coordinator._get_client()
     response = AsyncMock(spec=Response)
     response.json.return_value = search_response
-    response.raise_for_status = AsyncMock()
+    response.raise_for_status = Mock()
 
     with patch.object(client, "get", return_value=response):
         response_data = await hass.services.async_call(

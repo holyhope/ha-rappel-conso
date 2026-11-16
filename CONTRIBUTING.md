@@ -2,13 +2,15 @@
 
 ## Development Setup
 
+Use Python 3.14.2 or newer. The test environment targets Home Assistant 2026.11.1.
+
 ```bash
 # Create virtual environment
-uv venv  # or: python -m venv venv
+uv venv --python 3.14  # or: python3.14 -m venv .venv
 source .venv/bin/activate  # On Windows: .venv\Scripts\activate
 
 # Install all dependencies (runtime + development)
-uv pip install -r requirements_dev.txt  # or: pip install -r requirements_dev.txt
+uv pip install -r requirements_dev.txt --override requirements_homeassistant.txt
 
 # Install pre-commit hooks
 pre-commit install
@@ -16,6 +18,12 @@ pre-commit install
 # Verify setup by running hooks on all files
 pre-commit run --all-files
 ```
+
+The Home Assistant test helper pins its own Home Assistant and test dependencies.
+The override selects the stable Home Assistant version in
+`requirements_homeassistant.txt`; the helper still selects compatible versions of
+pytest, coverage, and Pydantic. Run the full test suite after updating this target
+to check compatibility with the helper's fixtures.
 
 ## Code Quality
 
