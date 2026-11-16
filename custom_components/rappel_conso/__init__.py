@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import logging
+from typing import cast
 
 import voluptuous as vol
 from homeassistant.config_entries import ConfigEntry, ConfigEntryState
@@ -85,10 +86,10 @@ async def async_setup(  # pylint: disable=unused-argument
                 limit=limit,
             )
 
-            return {
-                "recalls": results,
-                "count": len(results),
-            }
+            return cast(
+                ServiceResponse,
+                {"recalls": results, "count": len(results)},
+            )
 
         except Exception as err:
             raise ServiceValidationError(

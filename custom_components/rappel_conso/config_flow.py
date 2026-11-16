@@ -8,8 +8,8 @@ from typing import Any
 import httpx
 import voluptuous as vol
 from homeassistant import config_entries
+from homeassistant.config_entries import ConfigFlowResult
 from homeassistant.core import HomeAssistant
-from homeassistant.data_entry_flow import FlowResult
 
 from .const import API_ENDPOINT, DOMAIN, NAME
 
@@ -41,14 +41,17 @@ async def validate_connection(_hass: HomeAssistant) -> dict[str, Any]:
         raise
 
 
-class RappelConsoConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
+# This single-instance user flow does not use discovery matching.
+class RappelConsoConfigFlow(  # pylint: disable=abstract-method
+    config_entries.ConfigFlow, domain=DOMAIN
+):
     """Handle a config flow for Rappel Conso."""
 
     VERSION = 1
 
     async def async_step_user(
         self, user_input: dict[str, Any] | None = None
-    ) -> FlowResult:
+    ) -> ConfigFlowResult:
         """Handle the initial step."""
         errors: dict[str, str] = {}
 

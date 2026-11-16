@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from unittest.mock import AsyncMock, patch
+from unittest.mock import AsyncMock, Mock, patch
 
 import pytest
 from homeassistant import config_entries
@@ -21,7 +21,7 @@ def mock_httpx_get():
     with patch("httpx.AsyncClient.get") as mock:
         response = AsyncMock(spec=Response)
         response.json.return_value = {"total_count": 16341, "results": []}
-        response.raise_for_status = AsyncMock()
+        response.raise_for_status = Mock()
         mock.return_value = response
         yield mock
 
@@ -61,7 +61,7 @@ async def test_user_flow_invalid_response(hass: HomeAssistant):
     with patch("httpx.AsyncClient.get") as mock:
         response = AsyncMock(spec=Response)
         response.json.return_value = {"invalid": "response"}
-        response.raise_for_status = AsyncMock()
+        response.raise_for_status = Mock()
         mock.return_value = response
 
         result = await hass.config_entries.flow.async_init(
