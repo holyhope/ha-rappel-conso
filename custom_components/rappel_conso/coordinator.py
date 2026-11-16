@@ -269,6 +269,8 @@ class RappelConsoCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             if new_recall_ids:
                 self._fire_new_recall_events(all_recalls, new_recall_ids)
 
+            return {}  # noqa: TRY300
+
         except httpx.HTTPStatusError as err:
             raise UpdateFailed(
                 f"HTTP error occurred: {err.response.status_code}"
@@ -278,9 +280,6 @@ class RappelConsoCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         except Exception as err:
             _LOGGER.exception("Unexpected error fetching recall data")
             raise UpdateFailed(f"Unexpected error: {err}") from err
-        return {}
-
-        return {}
 
     async def async_shutdown(self) -> None:
         """Shutdown coordinator and cleanup resources."""
