@@ -1,4 +1,6 @@
 [tool.pytest.ini_options]
+# Home Assistant must alias httpx2 before pytest auto-loads HTTPX-based plugins.
+addopts = ["-p", "homeassistant.core"]
 asyncio_mode = "auto"
 asyncio_default_fixture_loop_scope = "function"
 testpaths = ["tests"]

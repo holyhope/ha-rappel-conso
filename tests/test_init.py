@@ -8,6 +8,7 @@ import pytest
 from homeassistant.config_entries import ConfigEntryState
 from homeassistant.core import HomeAssistant
 from httpx import Response
+from pytest_homeassistant_custom_component.common import MockConfigEntry
 
 from custom_components.rappel_conso.const import DOMAIN
 
@@ -52,8 +53,6 @@ def mock_httpx_client():
 @pytest.fixture
 def mock_config_entry(hass: HomeAssistant):
     """Mock config entry."""
-    from pytest_homeassistant_custom_component.common import MockConfigEntry
-
     entry = MockConfigEntry(
         domain=DOMAIN,
         title="Rappel Conso",
