@@ -11,15 +11,13 @@ from homeassistant import config_entries
 from homeassistant.core import HomeAssistant
 from homeassistant.data_entry_flow import FlowResult
 
-from .const import DOMAIN, NAME
+from .const import API_ENDPOINT, DOMAIN, NAME
 
 _LOGGER = logging.getLogger(__name__)
 
 
 async def validate_connection(_hass: HomeAssistant) -> dict[str, Any]:
     """Validate that we can connect to the API."""
-    from .const import API_ENDPOINT
-
     try:
         async with httpx.AsyncClient(timeout=10.0) as client:
             response = await client.get(

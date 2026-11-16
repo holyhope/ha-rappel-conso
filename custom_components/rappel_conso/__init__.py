@@ -139,7 +139,9 @@ async def async_setup(  # pylint: disable=unused-argument
             },
         )
 
-    hass.services.async_register(DOMAIN, SERVICE_FIRE_TEST_RECALL, handle_fire_test_recall)
+    hass.services.async_register(
+        DOMAIN, SERVICE_FIRE_TEST_RECALL, handle_fire_test_recall
+    )
 
     return True
 
