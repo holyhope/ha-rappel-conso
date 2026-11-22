@@ -3,7 +3,6 @@
 
 # Testing
 # The helper pins Home Assistant, pytest, coverage, and Pydantic together.
-homeassistant>=2026.11.2
 pytest>=9.2.0
 pytest-homeassistant-custom-component>=0.13.375
 pytest-cov>=7.0.0
